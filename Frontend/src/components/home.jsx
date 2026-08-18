@@ -47,7 +47,7 @@ const student=JSON.parse(localStorage.getItem("student"));
 
          <>
          <h1>Dashboard</h1>
-         <h2>Welcome User !{student.email}</h2>
+         <h2>Welcome User!</h2>
 
          <button className="get" onClick={getusers}>getUser</button>
 
