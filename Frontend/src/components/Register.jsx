@@ -32,7 +32,7 @@ setRegisterUser({...registerUser,[e.target.name]:e.target.value})
     
 <div className="Third-div">
             <h1>Create Account</h1>
-    <h3>name</h3>
+    <h3>Name</h3>
 <input type="text" name="name" id="" onChange={a} />
     <h3>Email</h3>
 <input type="text" name="email" id="" onChange={a} />
@@ -40,7 +40,7 @@ setRegisterUser({...registerUser,[e.target.name]:e.target.value})
 <input type="password" name="password" id="" onChange={a}/>
 
     <button onClick={submit}>Register</button>
-    <a href="/login">Do you already Have Account</a>
+    <a href="/login">Do you already Have Account, Click Here!</a>
 </div>
     </>
         )

@@ -1,12 +1,382 @@
-.get{
-    background-color: blue;
-    border: none;
-    color: white;
-    border-radius: 5px;
-    padding:  8px 10px;
-    cursor: pointer;
-    margin-left: 100px;
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
-.get:hover{
-    background-color: darkblue;
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f4f7fb;
+    color: #1f2937;
+}
+
+.home-page {
+    min-height: 100vh;
+    background: #f4f7fb;
+    color: #1f2937;
+    transition: 0.4s;
+}
+
+.dashboard-header {
+    width: 100%;
+    background: linear-gradient(135deg, #1717d4, #4f46e5);
+    color: white;
+    padding: 22px 50px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+}
+
+.dashboard-header h1 {
+    font-size: 30px;
+    letter-spacing: 0.5px;
+}
+
+.header-options {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.theme-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.theme-box label {
+    color: white;
+    font-weight: 600;
+}
+
+.theme-box select {
+    padding: 9px 12px;
+    border: none;
+    border-radius: 7px;
+    cursor: pointer;
+    outline: none;
+}
+
+.logout {
+    background: white;
+    color: #333;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.logout:hover {
+    background: #ff4d4d;
+    color: white;
+    transform: translateY(-2px);
+}
+
+h2 {
+    margin: 35px 50px 25px;
+    font-size: 24px;
+    color: #374151;
+}
+
+.get {
+    margin-left: 50px;
+    background: #1717d4;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.get:hover {
+    background: #0d0da8;
+    transform: translateY(-2px);
+}
+
+.search-container {
+    margin: 25px 50px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: white;
+    padding: 18px;
+    width: fit-content;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.search-container input {
+    width: 280px;
+    padding: 11px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
+    outline: none;
+    font-size: 14px;
+}
+
+.search-container input:focus {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+}
+
+.search-container select {
+    padding: 11px;
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
+    background: white;
+    outline: none;
+    cursor: pointer;
+}
+
+.search-container button {
+    padding: 11px 18px;
+    border: none;
+    border-radius: 7px;
+    background: #4f46e5;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.search-container button:hover {
+    background: #3730a3;
+}
+
+.search-container button:last-child {
+    background: #6b7280;
+}
+
+.search-container button:last-child:hover {
+    background: #4b5563;
+}
+
+table {
+    margin: 20px 50px;
+    width: calc(100% - 100px);
+    border-collapse: collapse;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+}
+
+thead {
+    background: linear-gradient(135deg, #1717d4, #4f46e5);
+    color: white;
+}
+
+th {
+    padding: 16px;
+    text-align: left;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 14px;
+}
+
+tbody tr {
+    transition: 0.2s;
+}
+
+tbody tr:hover {
+    background: #f5f7ff;
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.up {
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: 0.3s;
+}
+
+.up:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+.de {
+    background: #ef4444;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: 0.3s;
+}
+
+.de:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+}
+
+.pagination {
+    margin: 25px 50px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.pre22,
+.next22 {
+    border: none;
+    padding: 10px 20px;
+    border-radius: 7px;
+    background: #4f46e5;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.pre22:hover:not(:disabled),
+.next22:hover:not(:disabled) {
+    background: #3730a3;
+    transform: translateY(-1px);
+}
+
+.pre22:disabled,
+.next22:disabled {
+    background: #d1d5db;
+    color: #6b7280;
+    cursor: not-allowed;
+}
+
+.pagination span {
+    font-weight: 600;
+    color: #374151;
+}
+
+/* DARK THEME */
+
+.home-page.dark {
+    background: #111827;
+    color: #f9fafb;
+}
+
+.home-page.dark .dashboard-header {
+    background: linear-gradient(135deg, #111827, #374151);
+}
+
+.home-page.dark h2 {
+    color: #f9fafb;
+}
+
+.home-page.dark .get {
+    background: #6366f1;
+}
+
+.home-page.dark .get:hover {
+    background: #4f46e5;
+}
+
+.home-page.dark .search-container {
+    background: #1f2937;
+}
+
+.home-page.dark .search-container input {
+    background: #374151;
+    color: white;
+    border-color: #4b5563;
+}
+
+.home-page.dark .search-container input::placeholder {
+    color: #d1d5db;
+}
+
+.home-page.dark .search-container select {
+    background: #374151;
+    color: white;
+    border-color: #4b5563;
+}
+
+.home-page.dark table {
+    background: #1f2937;
+    color: white;
+}
+
+.home-page.dark thead {
+    background: linear-gradient(135deg, #374151, #4b5563);
+}
+
+.home-page.dark td {
+    border-bottom-color: #374151;
+}
+
+.home-page.dark tbody tr:hover {
+    background: #374151;
+}
+
+.home-page.dark .pagination span {
+    color: #f9fafb;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 768px) {
+
+    .dashboard-header {
+        padding: 18px 20px;
+    }
+
+    .dashboard-header h1 {
+        font-size: 24px;
+    }
+
+    .header-options {
+        gap: 8px;
+    }
+
+    .theme-box label {
+        display: none;
+    }
+
+    h2 {
+        margin-left: 20px;
+    }
+
+    .get {
+        margin-left: 20px;
+    }
+
+    .search-container {
+        margin: 20px;
+        width: calc(100% - 40px);
+        flex-wrap: wrap;
+    }
+
+    .search-container input {
+        width: 100%;
+    }
+
+    table {
+        margin: 20px;
+        width: calc(100% - 40px);
+        display: block;
+        overflow-x: auto;
+    }
+
+    .pagination {
+        margin: 25px 20px;
+    }
 }

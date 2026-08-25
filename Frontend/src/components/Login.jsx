@@ -34,7 +34,7 @@ const navigate=useNavigate();
        <h3>Password</h3>
 <input type="password" name="password" id="" onChange={a}/>
 <button onClick={submit}>Login</button>
-<a href="/">New User || Register Here</a>
+<a href="/register">New User? Register Here!</a>
    </div>
     </>
     )
