@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./Home.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -17,62 +17,87 @@ function Home() {
     function logout() {
         navigate("/login");
     }
-
+    useEffect(()=>{
+        if (!token){
+            logout();
+            return;
+        }
+        const interval=setInterval(()=>{
+            axios.get(`http://localhost:8080/verify`,{
+                headers:{
+                    Authorization:`Bearer ${token}`,
+                },
+            }).catch((err)=>{
+                console.log(err);
+                alert("Session Expired. Please login again.");
+                logout();
+            })
+        },5000)
+        return()=>clearInterval(interval)
+    })
     function changeTheme(e) {
         const newTheme = e.target.value;
         setTheme(newTheme);
         localStorage.setItem("theme", newTheme);
     }
 
-    async function getusers(pageNumber = page) {
-        try {
+   async function getusers(pageNumber = page) {
+    try {
+        const response = await axios.get(
+            `http://localhost:8080/get/page?page=${pageNumber}&size=6&sortDirection=asc`
+        );
+
+        setUsers(response.data.content);
+        setTotalPages(response.data.totalPages);
+        setPage(response.data.number);
+
+    } catch (err) {
+        console.log(err);
+        alert("Failed to get users");
+    }
+}
+
+   async function searchUser() {
+
+    if (search.trim() === "") {
+        alert("Please enter name or email");
+        return;
+    }
+
+    try {
+
+        if (searchType === "email") {
+
             const response = await axios.get(
-                `http://localhost:8080/get/page?page=${pageNumber}&size=6`
+                `http://localhost:8080/search/email/${encodeURIComponent(search)}`
             );
 
-            setUsers(response.data.content);
-            setTotalPages(response.data.totalPages);
-            setPage(response.data.number);
-        } catch (err) {
-            console.log(err);
-            alert("Failed to get users");
+            setUsers([response.data]);
+
+        } else {
+
+            const response = await axios.get(
+                `http://localhost:8080/search/name/${encodeURIComponent(search)}`
+            );
+
+            setUsers(response.data);
         }
+
+        setTotalPages(0);
+
+    } catch (err) {
+
+        console.log(err);
+
+        if (err.response?.status === 404) {
+            alert("User Not Found");
+        } else {
+            alert("Search Failed");
+        }
+
+        setUsers([]);
     }
-
-    async function searchUser() {
-        if (search.trim() === "") {
-            alert("Please enter name or email");
-            return;
-        }
-
-        try {
-            if (searchType === "email") {
-                const response = await axios.get(
-                    `http://localhost:8080/search/email?email=${encodeURIComponent(search)}`
-                );
-
-                setUsers([response.data]);
-            } else {
-                const response = await axios.get(
-                    `http://localhost:8080/search/name?name=${encodeURIComponent(search)}`
-                );
-
-                setUsers(response.data);
-            }
-
-            setTotalPages(0);
-        } catch (err) {
-            console.log(err);
-
-            if (err.response?.status === 404) {
-                alert("User Not Found");
-            } else {
-                alert("Search Failed");
-            }
-
-            setUsers([]);
-        }
-    }
+}
 
     function clearSearch() {
         setSearch("");
@@ -139,19 +164,6 @@ function Home() {
         if (page < totalPages - 1) {
             getusers(page + 1);
         }
-    }
-
-    function logout() {
-        const confirmLogout = window.confirm(
-            "Are you sure you want to logout?"
-        );
-
-        if (!confirmLogout) {
-            return;
-        }
-
-        localStorage.removeItem("student");
-        navigate("/login");
     }
 
     return (
