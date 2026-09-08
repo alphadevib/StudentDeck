@@ -4,15 +4,19 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 function Home() {
+    const token=localStorage.getItem("Token");
+    const navigate=useNavigate();
     const [theme, setTheme] = useState(localStorage.getItem("theme") || "default");
     const [users, setUsers] = useState([]);
     const [page, setPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
     const [search, setSearch] = useState("");
     const [searchType, setSearchType] = useState("email");
-
-    const navigate = useNavigate();
     const student = JSON.parse(localStorage.getItem("student"));
+
+    function logout() {
+        navigate("/login");
+    }
 
     function changeTheme(e) {
         const newTheme = e.target.value;
