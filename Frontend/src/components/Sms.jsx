@@ -1,5 +1,5 @@
 import { useState } from "react";
-
+import "./Sms.css";
 function Sms() {
   const [phone, setPhone] = useState("");
   const [message, setMessage] = useState("");
