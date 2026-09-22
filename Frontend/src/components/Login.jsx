@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "./Register.css";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 function Login() {
 
@@ -19,51 +19,63 @@ function Login() {
         });
     }
 
-   async function submit(){
-      
-         try{
-               const response=await axios.post(`http://localhost:8080/login`,loginUser);
-             alert("User Login Success...");
-             localStorage.setItem("Token",response.data)
-             navigate("/home");
-         }catch(err){
+    async function submit() {
+        try {
+            const response = await axios.post(`http://localhost:8080/login`, loginUser);
+            alert("User Login Success...");
+            localStorage.setItem("Token", response.data)
+            navigate("/home");
+        } catch (err) {
+            console.log(err);
             alert("User Failed to Login...")
-         }
-   
+        }
     }
 
     return (
-        <>
-            <div className="Third-div">
+        <div className="auth-page">
+            <div className="auth-card">
 
-                <h1>Login Here</h1>
+                <h1>Welcome Back</h1>
+                <p className="auth-subtitle">Log in to your account</p>
 
-                <h3>Email</h3>
+                <div className="auth-form">
 
-                <input
-                    type="text"
-                    name="email"
-                    onChange={a}
-                />
+                    <div className="auth-field">
+                        <label htmlFor="email">Email</label>
+                        <input
+                            className="field"
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="you@example.com"
+                            onChange={a}
+                        />
+                    </div>
 
-                <h3>Password</h3>
+                    <div className="auth-field">
+                        <label htmlFor="password">Password</label>
+                        <input
+                            className="field"
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="••••••••"
+                            onChange={a}
+                        />
+                    </div>
 
-                <input
-                    type="password"
-                    name="password"
-                    onChange={a}
-                />
+                    <button className="btn btn-primary btn-block" onClick={submit}>
+                        Login
+                    </button>
 
-                <button onClick={submit}>
-                    Login
-                </button>
+                </div>
 
-                <a href="/register">
-                    New User? Register Here!
-                </a>
+                <Link className="auth-footer" to="/register">
+                    New user? Register here
+                </Link>
 
             </div>
-        </>
+        </div>
     );
 }
 

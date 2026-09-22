@@ -1,32 +1,7 @@
-table , th,td{
-    border: 2px solid black;
-    border-collapse: collapse;
-    
-}
-table{
-    margin-left: 100px;
-}
-.up{
-    background-color: blue;
-    border: none;
-    color: white;
-    border-radius: 5px;
-    padding:  8px 10px;
-    cursor: pointer;
-  
-}
-.up:hover{
-    background-color: darkblue;
-}
-.de{
-    background-color: red;
-    border: none;
-    color: white;
-    border-radius: 5px;
-    padding:  8px 10px;
-    cursor: pointer;
+/* App shell only.
+   Table and action-button styles live with the page that owns them
+   (see components/Home.css) so they cannot leak across routes. */
 
-}
-.de:hover{
-    background-color: darkred;
+#root {
+    min-height: 100vh;
 }

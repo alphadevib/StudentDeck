@@ -1,99 +1,91 @@
-body {
-    margin: 0;
-    font-family: Arial, Helvetica, sans-serif;
-    background: linear-gradient(135deg, #1717d4, #4f46e5);
+/* ============================================================
+   Auth pages (Register + Login)
+   The gradient is scoped to .auth-page, NOT to body, so it does
+   not bleed onto the dashboard / SMS / weather routes.
+   ============================================================ */
+
+.auth-page {
     min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    background: var(--brand-grad);
 }
 
-.Third-div {
-    width: 400px;
-    margin: 70px auto;
+.auth-card {
+    width: 100%;
+    max-width: 420px;
     padding: 40px;
-    background: #ffffff;
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+}
+
+.auth-card h1 {
     text-align: center;
-    border-radius: 18px;
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+    font-size: 28px;
+    color: var(--text);
 }
 
-.Third-div h1 {
-    color: #1f2937;
-    margin-bottom: 30px;
-    font-size: 30px;
+.auth-subtitle {
+    text-align: center;
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 14px;
 }
 
-.Third-div input {
-    width: 90%;
-    padding: 13px 15px;
-    margin-bottom: 18px;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    font-size: 15px;
-    outline: none;
-    transition: 0.3s;
+/* label + input stacked as one unit, evenly spaced */
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin-top: 30px;
 }
 
-.Third-div input:focus {
-    border-color: #4f46e5;
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+.auth-field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
 }
 
-.Third-div button {
-    width: 96%;
-    padding: 13px;
-    margin-top: 5px;
-    background: linear-gradient(135deg, #1717d4, #4f46e5);
-    color: #ffffff;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
+.auth-field label {
+    font-size: 13px;
     font-weight: 600;
-    cursor: pointer;
-    transition: 0.3s;
+    color: var(--text-soft);
 }
 
-.Third-div button:hover {
-    transform: translateY(-2px);
+.auth-card .btn {
+    margin-top: 6px;
+    padding: 13px;
+    font-size: 15px;
+    background: var(--brand-grad);
+}
+
+.auth-card .btn:hover {
     box-shadow: 0 7px 18px rgba(79, 70, 229, 0.3);
 }
 
-.Third-div a {
+.auth-footer {
     display: block;
-    margin-top: 22px;
-    color: #4f46e5;
+    margin-top: 24px;
+    text-align: center;
+    color: var(--brand);
     text-decoration: none;
     font-weight: 600;
+    font-size: 14px;
 }
 
-.Third-div a:hover {
+.auth-footer:hover {
     text-decoration: underline;
 }
 
-.Third-div label {
-    display: block;
-    text-align: left;
-    margin: 0 5% 7px;
-    color: #374151;
-    font-size: 14px;
-    font-weight: 600;
-}
-
-.Third-div p {
-    color: #6b7280;
-    margin-bottom: 25px;
-}
-
-@media (max-width: 500px) {
-    .Third-div {
-        width: calc(100% - 50px);
-        padding: 30px 20px;
-        margin: 40px auto;
+@media (max-width: 480px) {
+    .auth-card {
+        padding: 30px 22px;
     }
 
-    .Third-div input {
-        width: 90%;
-    }
-
-    .Third-div button {
-        width: 96%;
+    .auth-card h1 {
+        font-size: 24px;
     }
 }

@@ -1,338 +1,343 @@
-import { useState, useEffect } from "react";
 import "./Home.css";
+import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 function Home() {
-    const token=localStorage.getItem("Token");
-    const navigate=useNavigate();
-    const [theme, setTheme] = useState(localStorage.getItem("theme") || "default");
+    const navigate = useNavigate();
+
+    const [token] = useState(localStorage.getItem("Token"));
+    const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
     const [users, setUsers] = useState([]);
     const [page, setPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
     const [search, setSearch] = useState("");
     const [searchType, setSearchType] = useState("email");
-    const student = JSON.parse(localStorage.getItem("student"));
 
-    function logout() {
+    const studentData = localStorage.getItem("student");
+    const student = studentData ? JSON.parse(studentData) : null;
+
+    const logout = useCallback(() => {
+        localStorage.removeItem("Token");
+        localStorage.removeItem("student");
         navigate("/login");
-    }
-    useEffect(()=>{
-        if (!token){
-            logout();
+    }, [navigate]);
+
+    useEffect(() => {
+        if (!token) {
+            navigate("/login");
             return;
         }
-        const interval=setInterval(()=>{
-            axios.get(`http://localhost:8080/verify`,{
-                headers:{
-                    Authorization:`Bearer ${token}`,
-                },
-            }).catch((err)=>{
-                console.log(err);
+
+        const verifySession = async () => {
+            try {
+                await axios.get("http://localhost:8080/verify", {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+            } catch (error) {
+                console.log(error);
                 alert("Session Expired. Please login again.");
                 logout();
-            })
-        },5000)
-        return()=>clearInterval(interval)
-    })
-    function changeTheme(e) {
-        const newTheme = e.target.value;
-        setTheme(newTheme);
-        localStorage.setItem("theme", newTheme);
-    }
+            }
+        };
 
-   async function getusers(pageNumber = page) {
-    try {
-        const response = await axios.get(
-            `http://localhost:8080/get/page?page=${pageNumber}&size=6&sortDirection=asc`
-        );
+        verifySession();
 
-        setUsers(response.data.content);
-        setTotalPages(response.data.totalPages);
-        setPage(response.data.number);
+        const interval = setInterval(verifySession, 5000);
 
-    } catch (err) {
-        console.log(err);
-        alert("Failed to get users");
-    }
-}
+        return () => clearInterval(interval);
+    }, [token, navigate, logout]);
 
-   async function searchUser() {
+    useEffect(() => {
+        localStorage.setItem("theme", theme);
+    }, [theme]);
 
-    if (search.trim() === "") {
-        alert("Please enter name or email");
-        return;
-    }
-
-    try {
-
-        if (searchType === "email") {
-
+    const getUsers = async (pageNumber = 0) => {
+        try {
             const response = await axios.get(
-                `http://localhost:8080/search/email/${encodeURIComponent(search)}`
+                `http://localhost:8080/get/page?page=${pageNumber}&size=6&sortDirection=asc`
             );
 
-            setUsers([response.data]);
-
-        } else {
-
-            const response = await axios.get(
-                `http://localhost:8080/search/name/${encodeURIComponent(search)}`
-            );
-
-            setUsers(response.data);
+            setUsers(response.data.content);
+            setPage(response.data.number);
+            setTotalPages(response.data.totalPages);
+        } catch (error) {
+            console.log(error);
+            alert("Failed to get users");
         }
+    };
 
-        setTotalPages(0);
-
-    } catch (err) {
-
-        console.log(err);
-
-        if (err.response?.status === 404) {
-            alert("User Not Found");
-        } else {
-            alert("Search Failed");
-        }
-
-        setUsers([]);
-    }
-}
-
-    function clearSearch() {
-        setSearch("");
-        setPage(0);
-        getusers(0);
-    }
-
-    async function updateuser(user) {
-        const newName = prompt("Enter new name:", user.name);
-        const newEmail = prompt("Enter new email:", user.email);
-
-        if (newName === null || newEmail === null) {
+    const searchUser = async () => {
+        if (!search.trim()) {
+            getUsers(0);
             return;
         }
 
-        const updatedDetails = {
-            name: newName,
-            email: newEmail
-        };
+        try {
+            let response;
+
+            if (searchType === "email") {
+                response = await axios.get(
+                    `http://localhost:8080/search/email/${encodeURIComponent(search)}`
+                );
+            } else {
+                response = await axios.get(
+                    `http://localhost:8080/search/name/${encodeURIComponent(search)}`
+                );
+            }
+
+            setUsers(Array.isArray(response.data) ? response.data : [response.data]);
+            setTotalPages(0);
+        } catch (error) {
+            console.log(error);
+            alert("User not found");
+            setUsers([]);
+        }
+    };
+
+    const clearSearch = () => {
+        setSearch("");
+        getUsers(0);
+    };
+
+    const updateUser = async (user) => {
+        const name = prompt("Enter new name", user.name);
+        const email = prompt("Enter new email", user.email);
+
+        if (!name || !email) {
+            return;
+        }
 
         try {
             await axios.put(
                 `http://localhost:8080/update/${user.id}`,
-                updatedDetails
+                {
+                    name: name,
+                    email: email
+                }
             );
 
-            alert("User Updated Successfully");
-            getusers(page);
-        } catch (err) {
-            console.log(err);
-            alert("User Update failed");
+            alert("User updated successfully");
+            getUsers(page);
+        } catch (error) {
+            console.log(error);
+            alert("Failed to update user");
         }
-    }
+    };
 
-    async function deleteByID(id) {
-        const confirmLogout = window.confirm(
-            "Are you sure you want to delete?"
-        );
-
-        if (!confirmLogout) {
+    const deleteByID = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this user?")) {
             return;
         }
 
         try {
-            await axios.delete(
-                `http://localhost:8080/delete/${id}`
-            );
+            await axios.delete(`http://localhost:8080/delete/${id}`);
 
-            alert("User Deleted Successfully");
-            getusers(page);
-        } catch (err) {
-            console.log(err);
-            alert("User failed to delete");
+            alert("User deleted successfully");
+            getUsers(page);
+        } catch (error) {
+            console.log(error);
+            alert("Failed to delete user");
         }
-    }
+    };
 
-    function previousPage() {
+    const previousPage = () => {
         if (page > 0) {
-            getusers(page - 1);
+            getUsers(page - 1);
         }
-    }
+    };
 
-    function nextPage() {
+    const nextPage = () => {
         if (page < totalPages - 1) {
-            getusers(page + 1);
+            getUsers(page + 1);
         }
-    }
+    };
 
     return (
-        <div className={`home-page ${theme}`}>
+        <div className={`home-container ${theme}`}>
 
-   <div className="dashboard-header">
-    <h1>Dashboard</h1>
+            <header className="home-header">
 
-    <div className="header-options">
-        <div className="theme-box">
-            <label>Theme</label>
+                <h1>Student Management System</h1>
 
-            <select value={theme} onChange={changeTheme}>
-                <option value="default">Default</option>
-                <option value="dark">Dark</option>
-            </select>
-        </div>
+                <div className="header-actions">
 
-        <button className="logout" onClick={logout}>
-            Logout
-        </button>
-    </div>
-</div>
-
-            <h2>
-                Welcome {student?.name || "User"}!
-            </h2>
-
-            <button
-                className="get"
-                onClick={() => getusers(0)}
-            >
-                Get Users
-            </button>
-
-            <br />
-            <br />
-
-            <div className="search-container">
-
-                <input
-                    type="text"
-                    placeholder="Search name or email"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                />
-
-                <select
-                    value={searchType}
-                    onChange={(e) =>
-                        setSearchType(e.target.value)
-                    }
-                >
-                    <option value="email">
-                        Search by Email
-                    </option>
-
-                    <option value="name">
-                        Search by Name
-                    </option>
-                </select>
-
-                <button onClick={searchUser}>
-                    Search
-                </button>
-
-                <button onClick={clearSearch}>
-                    Clear
-                </button>
-
-            </div>
-
-            <br />
-
-            <table>
-
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>UserName</th>
-                        <th>Email</th>
-                        <th>Update</th>
-                        <th>Delete</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-
-                    {users.length > 0 ? (
-
-                        users.map((user) => (
-
-                            <tr key={user.id}>
-
-                                <td>{user.id}</td>
-                                <td>{user.name}</td>
-                                <td>{user.email}</td>
-
-                                <td>
-                                    <button
-                                        className="up"
-                                        onClick={() =>
-                                            updateuser(user)
-                                        }
-                                    >
-                                        Update
-                                    </button>
-                                </td>
-
-                                <td>
-                                    <button
-                                        className="de"
-                                        onClick={() =>
-                                            deleteByID(user.id)
-                                        }
-                                    >
-                                        Delete
-                                    </button>
-                                </td>
-
-                            </tr>
-
-                        ))
-
-                    ) : (
-
-                        <tr>
-                            <td colSpan="5">
-                                No Users Found
-                            </td>
-                        </tr>
-
-                    )}
-
-                </tbody>
-
-            </table>
-
-            <br />
-
-            {totalPages > 0 && (
-
-                <div className="pagination">
-
-                    <button
-                        className="pre22"
-                        onClick={previousPage}
-                        disabled={page === 0}
+                    <select
+                        aria-label="Theme"
+                        value={theme}
+                        onChange={(e) => setTheme(e.target.value)}
                     >
-                        Previous
-                    </button>
+                        <option value="light">Light</option>
+                        <option value="black">Black</option>
+                        <option value="red">Red</option>
+                        <option value="purple">Purple</option>
+                        <option value="yellow">Yellow</option>
+                    </select>
 
-                    <span>
-                        Page {page + 1} of {totalPages}
-                    </span>
-
-                    <button
-                        className="next22"
-                        onClick={nextPage}
-                        disabled={
-                            page >= totalPages - 1
-                        }
-                    >
-                        Next
+                    <button className="btn logout-button" onClick={logout}>
+                        Logout
                     </button>
 
                 </div>
 
-            )}
+            </header>
+
+            <main className="home-content">
+
+                <div className="welcome-bar">
+
+                    <h2>Welcome {student?.name || "Student"}</h2>
+
+                    <div className="home-actions">
+
+                        <button
+                            className="btn btn-ghost"
+                            onClick={() => navigate("/sms")}
+                        >
+                            Send SMS
+                        </button>
+
+                        <button
+                            className="btn btn-ghost"
+                            onClick={() => navigate("/weather")}
+                        >
+                            Check Weather
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <div className="toolbar">
+
+                    <button
+                        className="btn btn-primary"
+                        onClick={() => getUsers(0)}
+                    >
+                        Get Users
+                    </button>
+
+                    <div className="search-container">
+
+                        <select
+                            className="field"
+                            aria-label="Search by"
+                            value={searchType}
+                            onChange={(e) => setSearchType(e.target.value)}
+                        >
+                            <option value="email">Email</option>
+                            <option value="name">Name</option>
+                        </select>
+
+                        <input
+                            className="field"
+                            type="text"
+                            placeholder={`Search by ${searchType}`}
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            onKeyDown={(e) => e.key === "Enter" && searchUser()}
+                        />
+
+                        <button className="btn btn-primary" onClick={searchUser}>
+                            Search
+                        </button>
+
+                        <button className="btn btn-ghost" onClick={clearSearch}>
+                            Clear
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <div className="table-card">
+                    <div className="table-scroll">
+                        <table>
+
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                {users.length > 0 ? (
+                                    users.map((user) => (
+                                        <tr key={user.id}>
+
+                                            <td>{user.id}</td>
+                                            <td>{user.name}</td>
+                                            <td>{user.email}</td>
+
+                                            <td>
+                                                <div className="row-actions">
+
+                                                    <button
+                                                        className="btn btn-primary btn-sm"
+                                                        onClick={() => updateUser(user)}
+                                                    >
+                                                        Update
+                                                    </button>
+
+                                                    <button
+                                                        className="btn btn-danger btn-sm"
+                                                        onClick={() => deleteByID(user.id)}
+                                                    >
+                                                        Delete
+                                                    </button>
+
+                                                </div>
+                                            </td>
+
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td className="empty-row" colSpan="4">
+                                            No users found
+                                        </td>
+                                    </tr>
+                                )}
+
+                            </tbody>
+
+                        </table>
+                    </div>
+                </div>
+
+                {totalPages > 0 && (
+                    <div className="pagination">
+
+                        <button
+                            className="btn btn-primary pre22"
+                            onClick={previousPage}
+                            disabled={page === 0}
+                        >
+                            Previous
+                        </button>
+
+                        <span>
+                            Page {page + 1} of {totalPages}
+                        </span>
+
+                        <button
+                            className="btn btn-primary next22"
+                            onClick={nextPage}
+                            disabled={page >= totalPages - 1}
+                        >
+                            Next
+                        </button>
+
+                    </div>
+                )}
+
+            </main>
 
         </div>
     );
